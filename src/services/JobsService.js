@@ -97,23 +97,30 @@ class JobsService {
     return result.rows;
   }
 
-  async editJobsById(id, {
-    title, description, job_type, experience_level, location_type, location_city,
-    salary_min, salary_max, is_salary_visible, status, company_id, category_id,
-  }) {
+  async editJobsById(id, payload) {
+    const allowedFields = [
+      'title', 'description', 'job_type', 'experience_level', 'location_type',
+      'location_city', 'salary_min', 'salary_max', 'is_salary_visible', 'status',
+      'company_id', 'category_id',
+    ];
+
+    const fieldsToUpdate = Object.keys(payload).filter((key) => allowedFields.includes(key));
+
+    if (!fieldsToUpdate.length) {
+      throw new InvariantError('Tidak ada data yang diperbarui');
+    }
+
     const updatedAt = new Date().toISOString();
+    const setClauses = fieldsToUpdate.map((field, index) => `${field} = $${index + 1}`);
+    const values = fieldsToUpdate.map((field) => payload[field]);
+
+    setClauses.push(`updated_at = $${values.length + 1}`);
+    values.push(updatedAt);
+    values.push(id);
 
     const query = {
-      text: `UPDATE jobs SET title = $1, description = $2, job_type = $3, experience_level = $4,
-             location_type = $5, location_city = $6, salary_min = $7, salary_max = $8,
-             is_salary_visible = $9, status = $10, company_id = $11, category_id = $12, updated_at = $13
-             WHERE id = $14 RETURNING id`,
-      values: [
-        title, description, job_type || null, experience_level || null,
-        location_type || null, location_city || null, salary_min ?? null, salary_max ?? null,
-        is_salary_visible !== undefined ? is_salary_visible : true, status || 'open',
-        company_id, category_id, updatedAt, id,
-      ],
+      text: `UPDATE jobs SET ${setClauses.join(', ')} WHERE id = $${values.length} RETURNING id`,
+      values,
     };
 
     try {
@@ -128,7 +135,6 @@ class JobsService {
       throw error;
     }
   }
-
   async deleteJobsById(id) {
     const query = {
       text: 'DELETE FROM jobs WHERE id = $1 RETURNING id',

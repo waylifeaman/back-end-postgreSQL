@@ -42,25 +42,29 @@ class CategoriesService{
         return result.rows[0]
     }
 
-    async editCategoryById(id, { name }) {
+    async editCategoryById(id, payload) {
+        const allowedFields = ['name'];
+        const fieldsToUpdate = Object.keys(payload).filter((key) => allowedFields.includes(key));
+        if (!fieldsToUpdate.length) {
+            throw new InvariantError('Tidak ada data yang diperbarui');
+        }
+
         const updatedAt = new Date().toISOString();
+        const setClauses = fieldsToUpdate.map((field, index) => `${field} = $${index + 1}`);
+        const values = fieldsToUpdate.map((field) => payload[field]);
+
+        setClauses.push(`updated_at = $${values.length + 1}`);
+        values.push(updatedAt);
+        values.push(id);
 
         const query = {
-            text: 'UPDATE categories SET name = $1, updated_at = $2 WHERE id = $3 RETURNING id',
-            values: [name, updatedAt, id],
+            text: `UPDATE categories SET ${setClauses.join(', ')} WHERE id = $${values.length} RETURNING id`,
+            values
         };
-
-        try {
-            const result = await pool.query(query);
-            if (!result.rows.length) {
-                throw new NotFoundError('Gagal memperbarui category, id tidak ditemukan');
-            }
-        } catch (error) {
-            if (error.code === '23505') {
-                throw new InvariantError('Nama category sudah digunakan');
-            }
-            throw error;
-        }
+        const result = await pool.query(query);
+        if (!result.rows.length) {
+            throw new NotFoundError('Gagal memperbarui category, id tidak ditemukan');
+        }    
     }
 
     async deleteCategoryById(id){

@@ -2,7 +2,7 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const validate = require('../middlewares/validate');
 const auth = require('../middlewares/auth');
-const { JobPayloadSchema } = require('../validators/jobValidator');
+const { JobPayloadSchema, JobUpdatePayloadSchema } = require('../validators/jobValidator');
 const {
   postJobHandler,
   getJobsHandler,
@@ -28,7 +28,7 @@ router.get('/:id', asyncHandler(getJobByIdHandler));
 
 // PROTECTED
 router.post('/', auth, validate(JobPayloadSchema), asyncHandler(postJobHandler));
-router.put('/:id', auth, validate(JobPayloadSchema), asyncHandler(putJobByIdHandler));
+router.put('/:id', auth, validate(JobUpdatePayloadSchema), asyncHandler(putJobByIdHandler));
 router.delete('/:id', auth, asyncHandler(deleteJobByIdHandler));
 
 // PROTECTED: bookmark (nested di bawah /jobs/:jobId/bookmark)

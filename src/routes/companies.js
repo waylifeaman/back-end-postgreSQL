@@ -2,7 +2,8 @@ const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
 const validate = require('../middlewares/validate');
 const auth = require('../middlewares/auth');
-const { CompanyPayloadSchema } = require('../validators/companyValidator');
+const { CompanyPayloadSchema, CompanyUpdatePayloadSchema } = require('../validators/companyValidator');
+
 const {
   postCompanyHandler,
   getCompaniesHandler,
@@ -19,7 +20,7 @@ router.get('/:id', asyncHandler(getCompanyByIdHandler));
 
 // PROTECTED
 router.post('/', auth, validate(CompanyPayloadSchema), asyncHandler(postCompanyHandler));
-router.put('/:id', auth, validate(CompanyPayloadSchema), asyncHandler(putCompanyByIdHandler));
+router.put('/:id', auth, validate(CompanyUpdatePayloadSchema), asyncHandler(putCompanyByIdHandler));
 router.delete('/:id', auth, asyncHandler(deleteCompanyByIdHandler));
 
 module.exports = router;

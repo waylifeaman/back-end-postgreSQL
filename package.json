@@ -6,8 +6,7 @@
   "start": "node src/server.js",
   "start:dev": "nodemon src/server.js",
   "migrate:up": "node-pg-migrate up",
-  "migrate:down": "node-pg-migrate down",
-  "db:reset": "psql -U postgres -d openjob -h localhost -f scripts/reset-db.sql"
+  "migrate:down": "node-pg-migrate down"
 },
   "keywords": [],
   "author": "",

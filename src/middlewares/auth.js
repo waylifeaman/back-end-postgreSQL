@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new AuthenticationError('Anda belum melampirkan access token'));
+    throw new AuthenticationError('Token tidak ditemukan');
   }
 
   const accessToken = authHeader.split(' ')[1];

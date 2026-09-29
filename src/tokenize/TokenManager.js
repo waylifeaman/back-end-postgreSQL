@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
 const InvariantError = require('../exceptions/InvariantError');
 
-const ACCESS_TOKEN_AGE = process.env.ACCESS_TOKEN_AGE || '10800'; 
+// Ambil nilai dari .env, gunakan parseInt agar dipastikan bertipe angka
+const ACCESS_TOKEN_AGE = parseInt(process.env.ACCESS_TOKEN_AGE || '10800', 10);
 
 const TokenManager = {
   generateAccessToken: (payload) => jwt.sign(payload, process.env.ACCESS_TOKEN_KEY, {
-    expiresIn: Number(ACCESS_TOKEN_AGE),
+    expiresIn: ACCESS_TOKEN_AGE,
   }),
 
   generateRefreshToken: (payload) => jwt.sign(payload, process.env.REFRESH_TOKEN_KEY),

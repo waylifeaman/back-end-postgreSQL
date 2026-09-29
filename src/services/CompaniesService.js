@@ -37,12 +37,24 @@ class CompaniesService {
         }
         return result.rows[0];
     }
-    async editCompaniesById(id, {name, description, location}){
+    async editCompaniesById(id, payload){
+        const allowedFields = ['name', 'description', 'location'];
+        const fieldsToUpdate = Object.keys(payload).filter((key) => allowedFields.includes(key));
+
+        if (!fieldsToUpdate.length) {
+            throw new InvariantError('Tidak ada data yang diperbarui');
+        }
         const updatedAt = new Date().toISOString();
+        const setClauses = fieldsToUpdate.map((field, index) => `${field} = $${index + 1}`);
+        const values = fieldsToUpdate.map((field) => payload[field]);
+
+        setClauses.push(`updated_at = $${values.length + 1}`);
+        values.push(updatedAt);
+        values.push(id);
 
         const query = {
-            text: `UPDATE companies SET name = $1 , description = $2, location = $3, updated_at = $4 WHERE id = $5 RETURNING id`,
-            values: [name, description || null, location|| null, updatedAt, id],
+            text: `UPDATE companies SET ${setClauses.join(', ')} WHERE id = $${values.length} RETURNING id`,
+            values,
         }
         const result = await pool.query(query);
         if(!result.rows.length){
@@ -61,17 +73,20 @@ class CompaniesService {
         }
     }
 
-    async verifyCompanyOwner(id, owner_id){
+   async verifyCompanyOwner(id, owner_id) {
         const query = {
-            text: `SELECT owner_id FROM companies WHERE id = $1`,
-            values: [id]
-        }
+            text: 'SELECT owner_id FROM companies WHERE id = $1',
+            values: [id],
+        };
+
         const result = await pool.query(query);
-        if(!result.rows.length){
+
+        if (!result.rows.length) {
             throw new NotFoundError('Perusahaan tidak ditemukan');
         }
-        if(result.rows[0].owner_id != owner_id){
-            throw new AuthorizationError(`Anda tidak berhak mengakses ini`)
+
+        if (result.rows[0].owner_id !== owner_id) {
+            throw new AuthorizationError('Anda tidak berhak mengakses ini');
         }
     }
 }

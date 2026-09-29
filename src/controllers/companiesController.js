@@ -3,14 +3,14 @@ const CompaniesService = require('../services/CompaniesService');
 const postCompanyHandler = async (req, res) => {
   const { name, description, location } = req.body;
     const owner_id = req.user.id;
-    const id = await CompaniesService.addCompany({
+    const companyId = await CompaniesService.addCompany({
     name, description, location, owner_id,
   });
 
   res.status(201).json({
     status: 'success',
     message: 'Company berhasil ditambahkan',
-    data: { id },
+    data: { id: companyId },
   });
 };
 
