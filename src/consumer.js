@@ -37,11 +37,10 @@ const handleMessage = async (channel, msg) => {
     if(!msg) return;
 
     try{
-        console.log('Isi pesan:', msg.content.toString());
         const {application_id: applicationId} = JSON.parse(msg.content.toString());
         const detail = await getApplicationDetail(applicationId);
         if(!detail){
-            console.error(`Lamaran ${applicationId} tidak ditemukan`);
+            console.warn(`Lamaran ${applicationId} sudah tidak ada, pesan dilewati`);
             return channel.ack(msg);
         }
         await transporter.sendMail({
@@ -76,7 +75,6 @@ const start = async()=>{
     console.log('Consumer Berjalan, menunggu pesan...');
     channel.consume(QUEUE_NAME, (msg) => handleMessage(channel, msg));
 }
-console.log('RabbitMQ user:', process.env.RABBITMQ_USER, 'host:', process.env.RABBITMQ_HOST);
 start().catch((err) => {
     console.error('Gagal memulai consumer:', err);
     process.exit(1);
