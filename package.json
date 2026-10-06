@@ -1,0 +1,35 @@
+{
+  "name": "openjob-restful-api-versi-1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:dev": "nodemon src/server.js",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "start:consumer": "node src/consumer.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "amqplib": "^2.2.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "ioredis": "^6.0.0",
+    "joi": "^18.2.9",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
+    "nanoid": "^3.3.19",
+    "nodemailer": "^10.0.13",
+    "pg": "^8.23.0",
+    "redis": "^6.3.0"
+  },
+  "devDependencies": {
+    "node-pg-migrate": "^9.0.0",
+    "nodemon": "^3.1.14"
+  }
+}
